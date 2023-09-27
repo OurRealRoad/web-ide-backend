@@ -24,6 +24,21 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// <-- Required for IDE -->
+
+	// Docker
+	implementation 'com.github.docker-java:docker-java:3.3.3'
+	// Docker daemon과 통신하기 위한 http client
+	implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.3.3'
+	// 위 httpclient5에 아래의 의존성이 들어가있으나, classNotFound로 인한 추가
+	implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+
+	// ssh
+	implementation 'com.github.mwiede:jsch:0.2.11'
+
+	// <-- End -->
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
