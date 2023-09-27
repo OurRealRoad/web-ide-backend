@@ -5,10 +5,12 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.*;
 import com.jinro.webide.constants.InfraConst;
-import com.jinro.webide.dto.ContainerInfoDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -16,48 +18,92 @@ import org.springframework.stereotype.Service;
 public class DockerServiceImpl implements DockerService {
 
     private final DockerClient dockerClient;
+    // Map<ProjectId, ContainerId>
+    private final Map<String, String> projectMap = new ConcurrentHashMap<>();
 
-    public ContainerInfoDTO run(String projectId) {
-        String containerId = createContainer(projectId);
-        int port = startContainer(containerId);
-        return new ContainerInfoDTO(containerId, port);
+    /**
+     * 프로젝트 시작시 컨테이너를 생성 및 실행
+     *
+     * @param projectId 프로젝트는 하나의 컨테이너만을 갖기 위해 만들것이기 때문에 프로젝트 id
+     * @return jsch(ssh)에 필요한 port 반환
+     */
+    public int run(String projectId) {
+        createContainer(projectId);
+        startContainer(projectId);
+        return getContainerPort(projectId);
     }
 
+    /**
+     * 컨테이너 생성
+     *
+     * @param projectId 프로젝트와 컨테이너는 1:1 대응
+     * @return container id
+     */
     @Override
-    public String createContainer(String projectId) {
+    public void createContainer(String projectId) {
+        if (!projectMap.containsKey(projectId))
+            throw new IllegalArgumentException("Container is already allocated to the project.");
         CreateContainerResponse container = dockerClient.createContainerCmd(InfraConst.IMAGE_NAME)
                 .withHostConfig(getDockerConfig(projectId))
                 .exec();
-        return container.getId();
+        String containerId = container.getId();
+        projectMap.put(projectId, containerId);
     }
 
+    /**
+     * 컨테이너 시작
+     *
+     * @param projectId Map에서 꺼내기 위한 key
+     * @return port 반환
+     */
     @Override
-    public int startContainer(String containerId) {
+    public void startContainer(String projectId) {
+        String containerId = getContainerId(projectId);
         dockerClient.startContainerCmd(containerId).exec();
-        return getContainerPort(containerId);
     }
 
+
     @Override
-    public void pauseContainer(String containerId) {
+    public void pauseContainer(String projectId) {
+        String containerId = getContainerId(projectId);
         dockerClient.pauseContainerCmd(containerId).exec();
     }
 
     @Override
-    public void unpauseContainer(String containerId) {
+    public void unpauseContainer(String projectId) {
+        String containerId = getContainerId(projectId);
         dockerClient.unpauseContainerCmd(containerId).exec();
     }
 
     @Override
-    public void stopContainer(String containerId) {
+    public void stopContainer(String projectId) {
+        String containerId = getContainerId(projectId);
         dockerClient.stopContainerCmd(containerId).exec();
     }
 
     @Override
-    public void removeContainer(String containerId) {
+    public void removeContainer(String projectId) {
+        String containerId = getContainerId(projectId);
         dockerClient.removeContainerCmd(containerId).exec();
+        projectMap.remove(projectId);
     }
 
-    private int getContainerPort(String containerId) {
+    private String getContainerId(String projectId) {
+        String containerId = projectMap.get(projectId);
+        if (containerId == null)
+            throw new IllegalStateException("Container is not allocated to the project.");
+        return containerId;
+    }
+
+    /**
+     * 컨테이너 시작시 랜덤 포트 할당으로 인한
+     * port 받아오기
+     *
+     * @param projectId Map에서 꺼내기 위한 key
+     * @return port
+     */
+    private int getContainerPort(String projectId) {
+        String containerId = getContainerId(projectId);
         ExposedPort tcp22 = ExposedPort.tcp(InfraConst.EXPOSED_PORT);
         InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerId).exec();
 
@@ -65,6 +111,13 @@ public class DockerServiceImpl implements DockerService {
         return Integer.parseInt(ports.getBindings().get(tcp22)[0].getHostPortSpec());
     }
 
+    /**
+     * 프로젝트 시작시 컨테이너를 생성할건데,
+     * 생성 할 때 필요한 각종 옵션 설정
+     *
+     * @param projectId 프로젝트 시작시 컨테이너를 생성할것이기 때문에 프로젝트 id
+     * @return
+     */
     private HostConfig getDockerConfig(String projectId) {
         // Docker Port Forwarding
         final ExposedPort tcp22 = ExposedPort.tcp(InfraConst.EXPOSED_PORT);
