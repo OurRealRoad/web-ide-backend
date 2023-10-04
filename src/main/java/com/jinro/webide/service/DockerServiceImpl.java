@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -19,7 +20,7 @@ public class DockerServiceImpl implements DockerService {
 
     private final DockerClient dockerClient;
     // Map<ProjectId, ContainerId>
-    private final Map<String, String> projectMap = new ConcurrentHashMap<>();
+    private final Map<UUID, String> projectMap = new ConcurrentHashMap<>();
 
     /**
      * 프로젝트 시작시 컨테이너를 생성 및 실행
@@ -27,10 +28,18 @@ public class DockerServiceImpl implements DockerService {
      * @param projectId 프로젝트는 하나의 컨테이너만을 갖기 위해 만들것이기 때문에 프로젝트 id
      * @return jsch(ssh)에 필요한 port 반환
      */
-    public int run(String projectId) {
+    @Override
+    public int run(UUID projectId) {
         createContainer(projectId);
         startContainer(projectId);
+
         return getContainerPort(projectId);
+    }
+
+    @Override
+    public void delete(UUID projectId) {
+        stopContainer(projectId);
+        removeContainer(projectId);
     }
 
     /**
@@ -40,13 +49,15 @@ public class DockerServiceImpl implements DockerService {
      * @return container id
      */
     @Override
-    public void createContainer(String projectId) {
+    public void createContainer(UUID projectId) {
         if (!projectMap.containsKey(projectId))
             throw new IllegalArgumentException("Container is already allocated to the project.");
         CreateContainerResponse container = dockerClient.createContainerCmd(InfraConst.IMAGE_NAME)
                 .withHostConfig(getDockerConfig(projectId))
                 .exec();
+
         String containerId = container.getId();
+
         projectMap.put(projectId, containerId);
     }
 
@@ -57,41 +68,47 @@ public class DockerServiceImpl implements DockerService {
      * @return port 반환
      */
     @Override
-    public void startContainer(String projectId) {
+    public void startContainer(UUID projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.startContainerCmd(containerId).exec();
     }
 
-
     @Override
-    public void pauseContainer(String projectId) {
+    public void pauseContainer(UUID projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.pauseContainerCmd(containerId).exec();
     }
 
     @Override
-    public void unpauseContainer(String projectId) {
+    public void unpauseContainer(UUID projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.unpauseContainerCmd(containerId).exec();
     }
 
     @Override
-    public void stopContainer(String projectId) {
+    public void stopContainer(UUID projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.stopContainerCmd(containerId).exec();
     }
 
     @Override
-    public void removeContainer(String projectId) {
+    public void removeContainer(UUID projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.removeContainerCmd(containerId).exec();
         projectMap.remove(projectId);
     }
 
-    private String getContainerId(String projectId) {
+    private String getContainerId(UUID projectId) {
         String containerId = projectMap.get(projectId);
+
         if (containerId == null)
             throw new IllegalStateException("Container is not allocated to the project.");
+
         return containerId;
     }
 
@@ -102,12 +119,13 @@ public class DockerServiceImpl implements DockerService {
      * @param projectId Map에서 꺼내기 위한 key
      * @return port
      */
-    private int getContainerPort(String projectId) {
+    private int getContainerPort(UUID projectId) {
         String containerId = getContainerId(projectId);
         ExposedPort tcp22 = ExposedPort.tcp(InfraConst.EXPOSED_PORT);
         InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerId).exec();
 
         Ports ports = containerInfo.getNetworkSettings().getPorts();
+        
         return Integer.parseInt(ports.getBindings().get(tcp22)[0].getHostPortSpec());
     }
 
@@ -118,7 +136,7 @@ public class DockerServiceImpl implements DockerService {
      * @param projectId 프로젝트 시작시 컨테이너를 생성할것이기 때문에 프로젝트 id
      * @return
      */
-    private HostConfig getDockerConfig(String projectId) {
+    private HostConfig getDockerConfig(UUID projectId) {
         // Docker Port Forwarding
         final ExposedPort tcp22 = ExposedPort.tcp(InfraConst.EXPOSED_PORT);
         final Ports portBindings = new Ports(tcp22, Ports.Binding.bindPort(0));

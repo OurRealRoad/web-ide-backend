@@ -1,15 +1,22 @@
 package com.jinro.webide.service;
 
+import java.util.UUID;
+
 public interface DockerService {
-    public void createContainer(String projectId);
 
-    public void startContainer(String projectId);
+    int run(UUID projectId);
 
-    public void pauseContainer(String projectId);
+    void delete(UUID projectId);
 
-    public void unpauseContainer(String projectId);
+    void createContainer(UUID projectId);
 
-    public void stopContainer(String projectId);
+    void startContainer(UUID projectId);
 
-    public void removeContainer(String projectId);
+    void pauseContainer(UUID projectId);
+
+    void unpauseContainer(UUID projectId);
+
+    void stopContainer(UUID projectId);
+
+    void removeContainer(UUID projectId);
 }
