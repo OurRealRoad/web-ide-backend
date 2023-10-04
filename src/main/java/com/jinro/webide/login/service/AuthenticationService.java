@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -27,6 +29,7 @@ public class AuthenticationService {
                 .name(request.getName())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .picture(request.getPicture())
+                .createdDate(String.valueOf(LocalDateTime.now()))
                 .role(Role.USER)
                 .build();
         memberRepository.save(user);
