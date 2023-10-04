@@ -25,8 +25,8 @@ public class AuthenticationService {
         var user = Member.builder()
                 .email(request.getEmail())
                 .name(request.getName())
-                .password(request.getPassword())
-                .picture(passwordEncoder.encode(request.getPassword()))
+                .password(passwordEncoder.encode(request.getPassword()))
+                .picture(request.getPicture())
                 .role(Role.USER)
                 .build();
         memberRepository.save(user);
