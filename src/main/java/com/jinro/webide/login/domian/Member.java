@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -18,10 +19,10 @@ import java.util.Collection;
 public class Member implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
-    @GenericGenerator(name = "native", strategy = "native")
-    @Column(name = "member_id")
-    private long id;
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(name = "member_uuid", columnDefinition = "BINARY(16)")
+    private UUID id;
     @Column(name = "member_email")
     private String email;
     @Column(name = "member_name")
@@ -30,13 +31,14 @@ public class Member implements UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "member_password")
     private String password;
+    @Column(name = "member_picture")
     private String picture;
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "regdate")
+    @Column(name = "reg_date")
     private String createdDate;
-    @Column(name = "chgdate")
+    @Column(name = "chg_date")
     private String updatedDate;
 
     public Member() {
