@@ -1,9 +1,7 @@
 package com.jinro.webide.login.web;
 
 import com.jinro.webide.login.service.AuthenticationService;
-import com.jinro.webide.login.web.dto.AuthenticationRequest;
-import com.jinro.webide.login.web.dto.AuthenticationResponse;
-import com.jinro.webide.login.web.dto.RegisterRequest;
+import com.jinro.webide.login.web.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +28,10 @@ public class AuthController {
     @GetMapping("/csrf")
     public ResponseEntity<String> getCsrfToken(HttpServletRequest request, CsrfToken token){
         return ResponseEntity.ok(token.getToken());
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<SuccessResponse> updatePassword(@RequestBody UpdatePasswordRequest request){
+        return ResponseEntity.ok(authenticationService.passwordUpdate(request));
     }
 }

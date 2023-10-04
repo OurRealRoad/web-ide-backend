@@ -3,12 +3,11 @@ package com.jinro.webide.login.service;
 import com.jinro.webide.login.domian.Member;
 import com.jinro.webide.login.domian.MemberRepository;
 import com.jinro.webide.login.domian.Role;
-import com.jinro.webide.login.web.dto.AuthenticationRequest;
-import com.jinro.webide.login.web.dto.AuthenticationResponse;
-import com.jinro.webide.login.web.dto.RegisterRequest;
+import com.jinro.webide.login.web.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,24 +32,60 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
         memberRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .isAccepted(true)
+                .token("Not Authenticated")
                 .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e){
+            return AuthenticationResponse.builder()
+                    .isAccepted(false)
+                    .token("Not authenticated")
+                    .build();
+        }
         var user = memberRepository.findByEmail(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
+                .isAccepted(true)
                 .token(jwtToken)
                 .build();
+    }
+
+    public AuthenticationResponse passwordUpdate(UpdatePasswordRequest request){
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e){
+            return AuthenticationResponse.builder()
+                    .isAccepted(false)
+                    .token("Not authenticated").build();
+        }
+       var user = memberRepository.findByEmail(request.getEmail())
+               .orElseThrow();
+       if(user == null) {
+           return AuthenticationResponse.builder()
+                   .isAccepted(false)
+                   .token("Not authenticated").build();
+       }
+       user.setPassword(passwordEncoder.encode(request.getNewpassword()));
+        memberRepository.save(user);
+       return AuthenticationResponse.builder()
+               .isAccepted(true)
+               .token("Not authenticated")
+               .build();
     }
 }
