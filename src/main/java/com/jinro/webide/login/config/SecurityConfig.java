@@ -57,7 +57,8 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/api/v1/auth/authenticate"),
                         new AntPathRequestMatcher("/api/v1/auth/register"),
                         new AntPathRequestMatcher("/api/v1/auth/csrf"),
-                        new AntPathRequestMatcher("/api/v1/auth/update-password")
+                        new AntPathRequestMatcher("/api/v1/auth/update-password"),
+                new AntPathRequestMatcher("/api/v1/auth/reset-password")
                 )
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));

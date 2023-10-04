@@ -88,4 +88,21 @@ public class AuthenticationService {
                .token("Not authenticated")
                .build();
     }
+
+    public AuthenticationResponse passwordReset(ResetPasswordRequest request){
+        var user1 = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow();
+        var user2 = memberRepository.findMemberByName(request.getName()).orElseThrow();
+        if(user1 == null || user2 == null || !user1.equals(user2)) {
+            return AuthenticationResponse.builder()
+                    .isAccepted(false)
+                    .token("Not authenticated").build();
+        }
+        user1.setPassword(passwordEncoder.encode(request.getNewpassword()));
+        memberRepository.save(user1);
+        return AuthenticationResponse.builder()
+                .isAccepted(true)
+                .token("Not authenticated")
+                .build();
+    }
 }
