@@ -1,5 +1,6 @@
 package com.jinro.webide.service;
 
+import com.jinro.webide.domain.FileNode;
 import com.jinro.webide.domain.Project;
 import com.jinro.webide.dto.ProjectRequestDTO;
 
@@ -17,4 +18,6 @@ public interface ProjectService {
     void deleteProject(String projectId);
 
     int getProjectContainerPort(String projectId);
+
+    FileNode getDirectoryScanList(String projectId);
 }

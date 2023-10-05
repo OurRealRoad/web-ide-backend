@@ -1,5 +1,6 @@
 package com.jinro.webide.service;
 
+import com.jinro.webide.domain.FileNode;
 import com.jinro.webide.domain.Project;
 import com.jinro.webide.dto.ProjectRequestDTO;
 import com.jinro.webide.repository.ProjectRepository;
@@ -7,7 +8,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -58,5 +64,36 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public int getProjectContainerPort(String projectId) {
         return dockerService.getContainerPort(projectId);
+    }
+
+    @Override
+    public FileNode getDirectoryScanList(String projectId) {
+        final String PATH = "/Users/jeosong/data/" + projectId + "/workspace/";
+        File root = new File(PATH);
+        FileNode rootNode = new FileNode();
+
+        rootNode.setName(root.getName());
+        rootNode.set_id(0);
+        rootNode.setChildren(traverse(root, new AtomicInteger(1)));
+        return rootNode;
+    }
+
+    private List<FileNode> traverse(File dir, AtomicInteger idCounter) {
+        List<FileNode> children = new ArrayList<>();
+        File[] files = dir.listFiles();
+
+        if (files != null) {
+            Arrays.sort(files, Comparator.comparing(File::getName));
+            for (File file : files) {
+                FileNode node = new FileNode();
+
+                node.setName(file.getName());
+                node.set_id(idCounter.getAndIncrement());
+                if (file.isDirectory())
+                    node.setChildren(traverse(file, idCounter));
+                children.add(node);
+            }
+        }
+        return children;
     }
 }

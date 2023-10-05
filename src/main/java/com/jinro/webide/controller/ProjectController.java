@@ -1,6 +1,7 @@
 package com.jinro.webide.controller;
 
 import com.jcraft.jsch.JSchException;
+import com.jinro.webide.domain.FileNode;
 import com.jinro.webide.domain.Project;
 import com.jinro.webide.dto.ProjectRequestDTO;
 import com.jinro.webide.service.JSchService;
@@ -22,9 +23,20 @@ public class ProjectController {
     private final ProjectService projectService;
     private final JSchService jSchService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{memberId}")
     public ResponseEntity<?> getProjectLIst(@PathVariable String memberId) {
         return new ResponseEntity<>(projectService.getAllProject(memberId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{projectId}/directory")
+    public ResponseEntity<?> getDirectoryFileList(@PathVariable String projectId) {
+        try {
+            FileNode directoryFileList = projectService.getDirectoryScanList(projectId);
+            return new ResponseEntity<>(directoryFileList, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error occurred while fetching directory list: {}", e.getMessage(), e);
+            return new ResponseEntity<>("서버에서 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping
