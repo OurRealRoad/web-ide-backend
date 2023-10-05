@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,10 +24,10 @@ import java.util.concurrent.Executors;
 @Service
 public class JSchServiceImpl implements JSchService {
 
-    private final Map<UUID, JSchProjectConnection> projectSession = new ConcurrentHashMap<>();
+    private final Map<String, JSchProjectConnection> projectSession = new ConcurrentHashMap<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public void createSession(UUID projectId, int port) throws JSchException, IOException {
+    public void createSession(String projectId, int port) throws JSchException, IOException {
         JSch jsch = new JSch();
         // ToDo : resource에서 얻어오는게 아닌 보안을 지키게 다른곳에서 얻어오게 나중에 변경
         ClassPathResource resource = new ClassPathResource(InfraConst.RSA_PATH);
@@ -51,7 +50,7 @@ public class JSchServiceImpl implements JSchService {
         return channelShell;
     }
 
-    public void execute(UUID projectId, String command, WebSocketSession session) throws JSchException, IOException {
+    public void execute(String projectId, String command, WebSocketSession session) throws JSchException, IOException {
         ChannelShell shell = projectSession.get(projectId).getChannelShell();
         InputStream in = shell.getInputStream();
         OutputStream os = shell.getOutputStream();
@@ -78,7 +77,7 @@ public class JSchServiceImpl implements JSchService {
         });
     }
 
-    public void disconnect(UUID projectId) throws JSchException, IOException {
+    public void disconnect(String projectId) throws JSchException, IOException {
         projectSession.get(projectId).disconnect();
     }
 }
