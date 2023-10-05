@@ -27,7 +27,7 @@ public class ProjectController {
         return new ResponseEntity<>(projectService.getAllProject(memberId), HttpStatus.OK);
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<?> createProject(@RequestBody ProjectRequestDTO requestDTO) {
         try {
             Project project = projectService.createProject(requestDTO);
@@ -44,18 +44,18 @@ public class ProjectController {
     public ResponseEntity<?> runProject(@PathVariable String projectId) throws JSchException, IOException {
         projectService.runProject(projectId);
         jSchService.createSession(projectId, projectService.getProjectContainerPort(projectId));
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
     @PostMapping("/{projectId}/stop")
     public ResponseEntity<?> stopProject(@PathVariable String projectId) {
         projectService.stopProject(projectId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
     @DeleteMapping("/{projectId}")
     public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
         projectService.deleteProject(projectId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 }

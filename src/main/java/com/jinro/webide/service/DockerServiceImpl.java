@@ -49,7 +49,7 @@ public class DockerServiceImpl implements DockerService {
      */
     @Override
     public void createContainer(String projectId) {
-        if (!projectMap.containsKey(projectId))
+        if (projectMap.containsKey(projectId))
             throw new IllegalArgumentException("Container is already allocated to the project.");
         CreateContainerResponse container = dockerClient.createContainerCmd(InfraConst.IMAGE_NAME)
                 .withHostConfig(getDockerConfig(projectId))
@@ -142,7 +142,7 @@ public class DockerServiceImpl implements DockerService {
         final Ports portBindings = new Ports(tcp22, Ports.Binding.bindPort(0));
 
         // Docker Volume Mount
-        final String hostPath = "~/data/" + projectId + "/workspace/";
+        final String hostPath = "/Users/jeosong/data/" + projectId + "/workspace/";
         final String containerPath = "/workspace";
 
         Bind bind = new Bind(hostPath, new Volume(containerPath));

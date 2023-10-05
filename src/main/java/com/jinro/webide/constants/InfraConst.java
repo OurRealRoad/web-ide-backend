@@ -8,7 +8,7 @@ public final class InfraConst {
     public static final int EXPOSED_PORT = 22;
 
     // docker image
-    public static final String IMAGE_NAME = "84ddc2d7719e5cb270af68b78a5969ab5ca473fd05247ae20cb0b1108bdbafb2";
+    public static final String IMAGE_NAME = "d8b7255925683e834cbe9d616c5d5656332619e8839eb9f21a1f9a20266057de";
 
     // cpu 제한 : 0.5v
     public static final Long LIMIT_CPU = 500000000L;
