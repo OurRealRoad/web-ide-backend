@@ -13,7 +13,9 @@ public interface JSchService {
 
     ChannelShell createChannelShell(Session session) throws JSchException;
 
-    void execute(String projecgId, String command, WebSocketSession session) throws JSchException, IOException;
+    void socketExecute(String projecgId, String command, WebSocketSession session) throws JSchException, IOException;
+
+    String fileSystemExecute(String projectId, String command) throws JSchException, IOException;
 
     void disconnect(String projectId) throws JSchException, IOException;
 }

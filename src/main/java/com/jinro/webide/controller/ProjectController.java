@@ -3,6 +3,7 @@ package com.jinro.webide.controller;
 import com.jcraft.jsch.JSchException;
 import com.jinro.webide.domain.FileNode;
 import com.jinro.webide.domain.Project;
+import com.jinro.webide.dto.FileSystemDTO;
 import com.jinro.webide.dto.ProjectRequestDTO;
 import com.jinro.webide.service.JSchService;
 import com.jinro.webide.service.ProjectService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Base64;
 
 @Slf4j
 @RestController
@@ -37,6 +39,13 @@ public class ProjectController {
             log.error("Error occurred while fetching directory list: {}", e.getMessage(), e);
             return new ResponseEntity<>("서버에서 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/{projectId}/filesystem")
+    public ResponseEntity<String> getFile(@PathVariable String projectId, @RequestParam String path) throws JSchException, IOException {
+        String command = "cat " + path;
+        String content = jSchService.fileSystemExecute(projectId, command);
+        return new ResponseEntity<>(content, HttpStatus.OK);
     }
 
     @PostMapping
@@ -65,9 +74,33 @@ public class ProjectController {
         return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
+    @PostMapping("/{projectId}/filesystem")
+    public ResponseEntity<?> createFileSystem(@PathVariable String projectId, @RequestBody FileSystemDTO requestDTO) throws JSchException, IOException {
+        String command = createFileSystem(requestDTO);
+        jSchService.fileSystemExecute(projectId, command);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
+    }
+
     @DeleteMapping("/{projectId}")
     public ResponseEntity<?> deleteProject(@PathVariable String projectId) {
         projectService.deleteProject(projectId);
         return new ResponseEntity<>("ok", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{projectId}/filesystem")
+    public ResponseEntity<?> deleteFileSystem(@PathVariable String projectId, @RequestParam String path) throws JSchException, IOException {
+        jSchService.fileSystemExecute(projectId, "rm -rf " + path);
+        return new ResponseEntity<>("ok", HttpStatus.NO_CONTENT);
+    }
+
+    private String createFileSystem(FileSystemDTO requestDTO) {
+        String command;
+        if (requestDTO.isDirectory())
+            command = "mkdir " + requestDTO.getPath();
+        else {
+            String encodedContent = Base64.getEncoder().encodeToString(requestDTO.getContent().getBytes());
+            command = "echo " + encodedContent + " | base64 --decode > " + requestDTO.getPath();
+        }
+        return command;
     }
 }
