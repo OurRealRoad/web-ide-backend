@@ -61,7 +61,7 @@ public class JSchServiceImpl implements JSchService {
         } else if (command.equals("SIGTSTP")) {
             os.write(26);
         } else {
-            os.write((command + "\n").getBytes());
+            os.write(command.getBytes());
         }
         os.flush();
 

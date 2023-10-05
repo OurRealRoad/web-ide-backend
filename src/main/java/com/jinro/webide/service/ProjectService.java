@@ -4,16 +4,17 @@ import com.jinro.webide.domain.Project;
 import com.jinro.webide.dto.ProjectRequestDTO;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface ProjectService {
     Project createProject(ProjectRequestDTO requsetDTO);
 
-    List<Project> getAllProject(UUID memberId);
+    List<Project> getAllProject(String memberId);
 
-    void runProject(UUID projectId);
+    void runProject(String projectId);
 
-    void stopProject(UUID projectId);
+    void stopProject(String projectId);
 
-    void deleteProject(UUID projectId);
+    void deleteProject(String projectId);
+
+    int getProjectContainerPort(String projectId);
 }

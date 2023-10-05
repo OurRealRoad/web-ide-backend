@@ -20,8 +20,8 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     private final RowMapper<Project> projectRowMapper = (rs, rowNum) -> {
         Project project = new Project();
 
-        project.setProjectId(toUUID(rs.getBytes("project_uuid")));
-        project.setMemberId(toUUID(rs.getBytes("member_uuid")));
+        project.setProjectId(toUUIDString(rs.getBytes("project_uuid")));
+        project.setMemberId(toUUIDString(rs.getBytes("member_uuid")));
         project.setProjectName(rs.getString("project_name"));
         project.setProjectLang(rs.getString("project_lang"));
         project.setRegDate(rs.getTimestamp("reg_date").toLocalDateTime());
@@ -30,27 +30,24 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         return project;
     };
 
-    private UUID toUUID(byte[] bytes) {
+    private String toUUIDString(byte[] bytes) {
         ByteBuffer bb = ByteBuffer.wrap(bytes);
-
         long firstLong = bb.getLong();
         long secondLong = bb.getLong();
-
-        return new UUID(firstLong, secondLong);
+        return new UUID(firstLong, secondLong).toString();
     }
 
-    private byte[] toBytes(UUID uuid) {
+    private byte[] toBytes(String uuidString) {
+        UUID uuid = UUID.fromString(uuidString);
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
-
         bb.putLong(uuid.getMostSignificantBits());
         bb.putLong(uuid.getLeastSignificantBits());
-
         return bb.array();
     }
 
     @Override
     public Project save(Project project) {
-        UUID projectId = UUID.randomUUID();
+        String projectId = UUID.randomUUID().toString();
 
         LocalDateTime regDate = LocalDateTime.now();
         LocalDateTime chgDate = LocalDateTime.now();
@@ -66,30 +63,30 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public void lastUsingTimeUpdate(UUID projectId) {
+    public void lastUsingTimeUpdate(String projectId) {
         jdbcTemplate.update("UPDATE tb_project SET chg_date = ? WHERE project_uuid = ?",
                 LocalDateTime.now(), toBytes(projectId));
     }
 
     @Override
-    public Optional<Project> findById(UUID projectId) {
-        List<Project> projects = jdbcTemplate.query("SELECT * FROM projects WHERE id = ?", new Object[]{projectId.toString()}, projectRowMapper);
+    public Optional<Project> findById(String projectId) {
+        List<Project> projects = jdbcTemplate.query("SELECT * FROM projects WHERE id = ?", new Object[]{projectId}, projectRowMapper);
 
         return projects.isEmpty() ? Optional.empty() : Optional.of(projects.get(0));
     }
 
     @Override
-    public List<Project> findAll(UUID memberId) {
+    public List<Project> findAll(String memberId) {
         return jdbcTemplate.query("SELECT * FROM tb_project WHERE member_uuid = ?", new Object[]{toBytes(memberId)}, projectRowMapper);
     }
 
     @Override
-    public void deleteById(UUID projectId) {
+    public void deleteById(String projectId) {
         jdbcTemplate.update("DELETE FROM tb_project WHERE project_uuid = ?", toBytes(projectId));
     }
 
     @Override
-    public void delete(UUID memberId) {
+    public void delete(String memberId) {
         jdbcTemplate.update("DELETE FROM tb_project WHERE member_uuid = ?", toBytes(memberId));
     }
 }

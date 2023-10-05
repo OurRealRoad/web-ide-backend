@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Setter
 @Getter
@@ -14,8 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Project {
 
-    private UUID projectId;
-    private UUID memberId;
+    private String projectId;
+    private String memberId;
     private String projectName;
     private String projectLang;
     private LocalDateTime regDate;

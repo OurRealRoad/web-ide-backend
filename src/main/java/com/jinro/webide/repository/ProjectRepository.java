@@ -4,19 +4,18 @@ import com.jinro.webide.domain.Project;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface ProjectRepository {
 
     Project save(Project project);
 
-    void lastUsingTimeUpdate(UUID projectId);
+    void lastUsingTimeUpdate(String projectId);
 
-    Optional<Project> findById(UUID projectId);
+    Optional<Project> findById(String projectId);
 
-    List<Project> findAll(UUID memberId);
+    List<Project> findAll(String memberId);
 
-    void deleteById(UUID projectId);
+    void deleteById(String projectId);
 
-    void delete(UUID memberId);
+    void delete(String memberId);
 }
