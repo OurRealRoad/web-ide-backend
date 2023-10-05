@@ -27,7 +27,11 @@ public class AuthController {
 
     @GetMapping("/csrf")
     public ResponseEntity<String> getCsrfToken(HttpServletRequest request, CsrfToken token){
-        return ResponseEntity.ok(token.getToken());
+        if(request.getHeader("X-XSRF-TOKEN") == null) {
+            return ResponseEntity.ok(token.getToken());
+        } else {
+            return ResponseEntity.ok("Not Accepted");
+        }
     }
 
     @PostMapping("/update-password")

@@ -47,18 +47,18 @@ public class SecurityConfig {
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
                         config.setAllowedHeaders(Collections.singletonList("*"));
-                        config.setExposedHeaders(Arrays.asList("Authorization"));
+//                        config.setExposedHeaders(Arrays.asList("Authorization"));
                         config.setMaxAge(3600L);
                         return config;
                     }
                 }));
 
         http.csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers(
-                        new AntPathRequestMatcher("/api/v1/auth/authenticate"),
-                        new AntPathRequestMatcher("/api/v1/auth/register"),
-                        new AntPathRequestMatcher("/api/v1/auth/csrf"),
-                        new AntPathRequestMatcher("/api/v1/auth/update-password"),
-                new AntPathRequestMatcher("/api/v1/auth/reset-password")
+            new AntPathRequestMatcher("/api/v1/auth/authenticate"),
+            new AntPathRequestMatcher("/api/v1/auth/register"),
+            new AntPathRequestMatcher("/api/v1/auth/csrf"),
+            new AntPathRequestMatcher("/api/v1/auth/update-password"),
+            new AntPathRequestMatcher("/api/v1/auth/reset-password")
                 )
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));

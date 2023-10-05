@@ -19,10 +19,8 @@ import java.util.UUID;
 public class Member implements UserDetails {
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "member_uuid", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @Column(name = "member_uuid")
+    private String id;
     @Column(name = "member_email")
     private String email;
     @Column(name = "member_name")
