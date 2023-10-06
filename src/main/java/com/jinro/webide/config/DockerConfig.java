@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DockerConfig {
-
     @Bean
     public DockerClient dockerClient() {
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -27,6 +26,4 @@ public class DockerConfig {
                 .withDockerHttpClient(httpClient)
                 .build();
     }
-
-
 }

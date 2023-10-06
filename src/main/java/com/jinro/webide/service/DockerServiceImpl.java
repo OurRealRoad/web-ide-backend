@@ -27,10 +27,18 @@ public class DockerServiceImpl implements DockerService {
      * @param projectId 프로젝트는 하나의 컨테이너만을 갖기 위해 만들것이기 때문에 프로젝트 id
      * @return jsch(ssh)에 필요한 port 반환
      */
+    @Override
     public int run(String projectId) {
         createContainer(projectId);
         startContainer(projectId);
+
         return getContainerPort(projectId);
+    }
+
+    @Override
+    public void delete(String projectId) {
+        stopContainer(projectId);
+        removeContainer(projectId);
     }
 
     /**
@@ -41,12 +49,14 @@ public class DockerServiceImpl implements DockerService {
      */
     @Override
     public void createContainer(String projectId) {
-        if (!projectMap.containsKey(projectId))
+        if (projectMap.containsKey(projectId))
             throw new IllegalArgumentException("Container is already allocated to the project.");
-        CreateContainerResponse container = dockerClient.createContainerCmd(InfraConst.IMAGE_NAME)
+        CreateContainerResponse container = dockerClient.createContainerCmd(InfraConst.IMAGE_ID)
                 .withHostConfig(getDockerConfig(projectId))
                 .exec();
+
         String containerId = container.getId();
+
         projectMap.put(projectId, containerId);
     }
 
@@ -59,39 +69,45 @@ public class DockerServiceImpl implements DockerService {
     @Override
     public void startContainer(String projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.startContainerCmd(containerId).exec();
     }
-
 
     @Override
     public void pauseContainer(String projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.pauseContainerCmd(containerId).exec();
     }
 
     @Override
     public void unpauseContainer(String projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.unpauseContainerCmd(containerId).exec();
     }
 
     @Override
     public void stopContainer(String projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.stopContainerCmd(containerId).exec();
     }
 
     @Override
     public void removeContainer(String projectId) {
         String containerId = getContainerId(projectId);
+
         dockerClient.removeContainerCmd(containerId).exec();
         projectMap.remove(projectId);
     }
 
     private String getContainerId(String projectId) {
         String containerId = projectMap.get(projectId);
+
         if (containerId == null)
             throw new IllegalStateException("Container is not allocated to the project.");
+
         return containerId;
     }
 
@@ -102,12 +118,14 @@ public class DockerServiceImpl implements DockerService {
      * @param projectId Map에서 꺼내기 위한 key
      * @return port
      */
-    private int getContainerPort(String projectId) {
+    @Override
+    public int getContainerPort(String projectId) {
         String containerId = getContainerId(projectId);
         ExposedPort tcp22 = ExposedPort.tcp(InfraConst.EXPOSED_PORT);
         InspectContainerResponse containerInfo = dockerClient.inspectContainerCmd(containerId).exec();
 
         Ports ports = containerInfo.getNetworkSettings().getPorts();
+
         return Integer.parseInt(ports.getBindings().get(tcp22)[0].getHostPortSpec());
     }
 
@@ -119,12 +137,14 @@ public class DockerServiceImpl implements DockerService {
      * @return
      */
     private HostConfig getDockerConfig(String projectId) {
+        String userHome = System.getProperty("user.home");
+
         // Docker Port Forwarding
         final ExposedPort tcp22 = ExposedPort.tcp(InfraConst.EXPOSED_PORT);
         final Ports portBindings = new Ports(tcp22, Ports.Binding.bindPort(0));
 
         // Docker Volume Mount
-        final String hostPath = "~/data/" + projectId + "/workspace/";
+        final String hostPath = userHome + "/MountData/" + projectId + "/workspace/";
         final String containerPath = "/workspace";
 
         Bind bind = new Bind(hostPath, new Volume(containerPath));
