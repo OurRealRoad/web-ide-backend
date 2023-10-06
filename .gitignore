@@ -11,6 +11,7 @@ activemq-data/
 classes/
 
 src/main/resources/application-rds.properties
+src/main/resources/application-redis.properties
 
 # Log files
 jxl.log
