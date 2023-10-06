@@ -1,7 +1,8 @@
-package com.example.chatting.repository;
+package com.jinro.webide.repository;
 
-import com.example.chatting.dto.ChatRoom;
-import com.example.chatting.util.RoomUtil;
+
+import com.jinro.webide.dto.ChatRoom;
+import com.jinro.webide.util.RoomUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

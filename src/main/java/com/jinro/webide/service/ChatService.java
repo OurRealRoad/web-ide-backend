@@ -1,4 +1,4 @@
-package com.example.chatting.service;
+package com.jinro.webide.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

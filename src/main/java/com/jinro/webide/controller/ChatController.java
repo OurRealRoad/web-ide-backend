@@ -1,7 +1,7 @@
-package com.example.chatting.controller;
+package com.jinro.webide.controller;
 
-import com.example.chatting.dto.ChatDTO;
-import com.example.chatting.repository.ChatRepository;
+import com.jinro.webide.dto.ChatDTO;
+import com.jinro.webide.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

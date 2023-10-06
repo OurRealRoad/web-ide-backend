@@ -1,7 +1,7 @@
-package com.example.chatting.controller;
+package com.jinro.webide.controller;
 
-import com.example.chatting.domain.Greeting;
-import com.example.chatting.domain.HelloMessage;
+import com.jinro.webide.domain.Greeting;
+import com.jinro.webide.domain.HelloMessage;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;

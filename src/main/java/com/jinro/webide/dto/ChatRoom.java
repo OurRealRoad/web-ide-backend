@@ -1,4 +1,4 @@
-package com.example.chatting.dto;
+package com.jinro.webide.dto;
 
 import lombok.Data;
 

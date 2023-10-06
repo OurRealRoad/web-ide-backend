@@ -1,4 +1,4 @@
-package com.example.chatting.util;
+package com.jinro.webide.util;
 
 import java.util.Random;
 
