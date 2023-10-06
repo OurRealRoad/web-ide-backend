@@ -25,7 +25,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = Member.builder()
-                .id(UUID.randomUUID().toString())
+                .id(UUID.randomUUID())
                 .email(request.getEmail())
                 .name(request.getName())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -56,7 +56,7 @@ public class AuthenticationService {
         }
         var user = memberRepository.findByEmail(request.getEmail())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(user, user.getId(), user.getName());
+        var jwtToken = jwtService.generateToken(user, user.getId().toString(), user.getName());
         return AuthenticationResponse.builder()
                 .isAccepted(true)
                 .token(jwtToken)

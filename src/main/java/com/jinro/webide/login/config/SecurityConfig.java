@@ -54,11 +54,7 @@ public class SecurityConfig {
                 }));
 
         http.csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers(
-            new AntPathRequestMatcher("/api/v1/auth/authenticate"),
-            new AntPathRequestMatcher("/api/v1/auth/register"),
-            new AntPathRequestMatcher("/api/v1/auth/csrf"),
-            new AntPathRequestMatcher("/api/v1/auth/update-password"),
-            new AntPathRequestMatcher("/api/v1/auth/reset-password")
+            new AntPathRequestMatcher("/api/v1/**")
                 )
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
