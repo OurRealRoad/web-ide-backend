@@ -1,5 +1,6 @@
 package com.jinro.webide.login.service;
 
+import com.jinro.webide.login.domian.MemberRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,18 +29,22 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(UserDetails userDetails, String id, String name){
+        return generateToken(new HashMap<>(), userDetails, id, name);
     }
 
     public String generateToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails
+            UserDetails userDetails,
+            String id,
+            String name
     ){
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setHeaderParam("typ", "JWT")
                 .setIssuer("JINRO")
+                .claim("id", id)
+                .claim("name", name)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))

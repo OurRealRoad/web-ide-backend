@@ -1,4 +1,4 @@
-package com.jinro.webide.login;
+package com.jinro.webide.login.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +20,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        log.info("================ URL 요청 후 인터셉터 ==================");
+        log.info("================ URL 요청 오류 인터셉터 ==================");
         int status = response.getStatus();
         System.out.println(response.getHeaderNames());
         System.out.println("Response Status: " + status);
@@ -30,7 +30,11 @@ public class LoggingInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
                                 @Nullable Exception ex) throws Exception {
         log.info("[aop-test] interceptor : ResponseInterceptor afterCompletion()");
-        if (ex != null)
+        if (ex != null) {
+            log.error("오류가 발생함");
             log.error("[aop-test] interceptor [EXCEPTION 발생] " + ex.getMessage());
+        } else {
+            log.error("Response 잘 보냄, 서버 문제 없음");
+        }
     }
 }
