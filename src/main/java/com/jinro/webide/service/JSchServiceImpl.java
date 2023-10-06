@@ -29,7 +29,7 @@ public class JSchServiceImpl implements JSchService {
         File file = resource.getFile();
         jsch.addIdentity(file.getAbsolutePath());
 
-        Session session = jsch.getSession(InfraConst.SSH_USER, InfraConst.HOST, port);
+        Session session = jsch.getSession(InfraConst.SSH_ACCOUNT, InfraConst.DOCKER_SERVER_IP, port);
         session.setConfig("StrictHostKeyChecking", "no");
         session.connect();
 

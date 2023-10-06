@@ -1,14 +1,14 @@
 package com.jinro.webide.constants;
 
 public final class InfraConst {
-    public static final String HOST = "localhost";
-    public static final String DOCKER_DAEMON = "tcp://" + HOST + ":2375";
+    public static final String DOCKER_SERVER_IP = System.getenv("Docker_Server_IP");
+    public static final String DOCKER_DAEMON = "tcp://" + DOCKER_SERVER_IP + ":" + System.getenv("Docker_Daemon_port");
 
     // for ssh port
     public static final int EXPOSED_PORT = 22;
 
     // docker image
-    public static final String IMAGE_NAME = "d8b7255925683e834cbe9d616c5d5656332619e8839eb9f21a1f9a20266057de";
+    public static final String IMAGE_ID = System.getenv("Docker_image_id");
 
     // cpu 제한 : 0.5v
     public static final Long LIMIT_CPU = 500000000L;
@@ -20,10 +20,10 @@ public final class InfraConst {
     public static final Long LIMIT_SWAP = 1073741824L;
 
     // rsa key path
-    public static final String RSA_PATH = "/key/id_rsa";
+    public static final String RSA_PATH = System.getenv("RSA_Path");
 
     // ssh account
-    public static final String SSH_USER = "root";
+    public static final String SSH_ACCOUNT = System.getenv("SSH_account");
 
     private InfraConst() {
     }

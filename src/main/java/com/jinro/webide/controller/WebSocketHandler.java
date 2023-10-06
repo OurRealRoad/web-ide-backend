@@ -25,16 +25,17 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        log.info(message.getPayload().toString());
+        String stringPayload = message.getPayload().toString();
+        log.info(stringPayload);
 
         if (session.getAttributes().get("projectId") == null) {
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(message.getPayload().toString());
+            JsonNode jsonNode = objectMapper.readTree(stringPayload);
             String projectId = jsonNode.get("projectId").asText();
 
             session.getAttributes().put("projectId", projectId);
         } else {
-            jSchService.socketExecute(session, message.getPayload().toString());
+            jSchService.socketExecute(session, stringPayload);
         }
 
     }
