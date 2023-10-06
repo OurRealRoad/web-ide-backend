@@ -7,8 +7,8 @@ import com.jcraft.jsch.Session;
 import java.io.IOException;
 
 public class JSchProjectConnection {
-    private final Session session;
-    private final ChannelShell channelShell;
+    private Session session;
+    private ChannelShell channelShell;
 
     public JSchProjectConnection(Session session, ChannelShell channelShell) {
         this.session = session;
@@ -17,12 +17,20 @@ public class JSchProjectConnection {
 
     public Session getSession() throws JSchException {
         validateSession();
-        return session;
+        return this.session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public ChannelShell getChannelShell() throws JSchException {
         validateChannelShell();
-        return channelShell;
+        return this.channelShell;
+    }
+
+    public void setChannelShell(ChannelShell channelShell) {
+        this.channelShell = channelShell;
     }
 
     public void disconnect() throws JSchException, IOException {

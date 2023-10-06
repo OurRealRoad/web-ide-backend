@@ -47,7 +47,14 @@ public class JSchServiceImpl implements JSchService {
     }
 
     @Override
-    public void socketExecute(String projectId, String command, WebSocketSession session) throws JSchException, IOException {
+    public void initWebSession(String projectId, WebSocketSession webSocketSession) {
+        webSocketSession.getAttributes().put("projectId", projectId);
+    }
+
+    @Override
+    public void socketExecute(WebSocketSession webSocketSession, String command) throws JSchException, IOException {
+        String projectId = (String) webSocketSession.getAttributes().get("projectId");
+        log.info("in socketExecute projectId = {}", projectId);
         ChannelShell shell = projectSession.get(projectId).getChannelShell();
         InputStream in = shell.getInputStream();
         OutputStream os = shell.getOutputStream();
@@ -57,16 +64,16 @@ public class JSchServiceImpl implements JSchService {
         } else if (command.equals("SIGTSTP")) {
             os.write(26);
         } else {
-            os.write(command.getBytes());
+            os.write((command + "\n").getBytes());
         }
         os.flush();
 
         executorService.execute(() -> {
             byte[] buffer = new byte[1024];
-            int i = 0;
+            int i;
             try {
                 while ((i = in.read(buffer)) != -1) {
-                    session.sendMessage(new TextMessage(new String(buffer, 0, i)));
+                    webSocketSession.sendMessage(new TextMessage(new String(buffer, 0, i)));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -74,6 +81,7 @@ public class JSchServiceImpl implements JSchService {
         });
     }
 
+    @Override
     public String fileSystemExecute(String projectId, String command) throws JSchException, IOException {
         Session session = projectSession.get(projectId).getSession();
         ChannelExec channel = (ChannelExec) session.openChannel("exec");
