@@ -52,7 +52,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
         LocalDateTime regDate = LocalDateTime.now();
         LocalDateTime chgDate = LocalDateTime.now();
 
-        jdbcTemplate.update("INSERT INTO tb_project (project_uuid, member_uuid, project_name, project_lang, reg_date, chg_date) VALUES (?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.update("INSERT INTO project (project_uuid, member_uuid, project_name, project_lang, reg_date, chg_date) VALUES (?, ?, ?, ?, ?, ?)",
                 toBytes(projectId), toBytes(project.getMemberId()), project.getProjectName(), project.getProjectLang(), regDate, chgDate);
 
         project.setProjectId(projectId);
@@ -64,29 +64,29 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public void lastUsingTimeUpdate(String projectId) {
-        jdbcTemplate.update("UPDATE tb_project SET chg_date = ? WHERE project_uuid = ?",
+        jdbcTemplate.update("UPDATE project SET chg_date = ? WHERE project_uuid = ?",
                 LocalDateTime.now(), toBytes(projectId));
     }
 
     @Override
     public Optional<Project> findById(String projectId) {
-        List<Project> projects = jdbcTemplate.query("SELECT * FROM projects WHERE id = ?", new Object[]{projectId}, projectRowMapper);
+        List<Project> projects = jdbcTemplate.query("SELECT * FROM project WHERE project_uuid = ?", new Object[]{projectId}, projectRowMapper);
 
         return projects.isEmpty() ? Optional.empty() : Optional.of(projects.get(0));
     }
 
     @Override
     public List<Project> findAll(String memberId) {
-        return jdbcTemplate.query("SELECT * FROM tb_project WHERE member_uuid = ?", new Object[]{toBytes(memberId)}, projectRowMapper);
+        return jdbcTemplate.query("SELECT * FROM project WHERE member_uuid = ?", new Object[]{toBytes(memberId)}, projectRowMapper);
     }
 
     @Override
     public void deleteById(String projectId) {
-        jdbcTemplate.update("DELETE FROM tb_project WHERE project_uuid = ?", toBytes(projectId));
+        jdbcTemplate.update("DELETE FROM project WHERE project_uuid = ?", toBytes(projectId));
     }
 
     @Override
     public void delete(String memberId) {
-        jdbcTemplate.update("DELETE FROM tb_project WHERE member_uuid = ?", toBytes(memberId));
+        jdbcTemplate.update("DELETE FROM project WHERE member_uuid = ?", toBytes(memberId));
     }
 }

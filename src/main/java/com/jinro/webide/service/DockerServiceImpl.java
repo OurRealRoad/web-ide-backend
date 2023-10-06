@@ -137,12 +137,14 @@ public class DockerServiceImpl implements DockerService {
      * @return
      */
     private HostConfig getDockerConfig(String projectId) {
+        String userHome = System.getProperty("user.home");
+
         // Docker Port Forwarding
         final ExposedPort tcp22 = ExposedPort.tcp(InfraConst.EXPOSED_PORT);
         final Ports portBindings = new Ports(tcp22, Ports.Binding.bindPort(0));
 
         // Docker Volume Mount
-        final String hostPath = "/Users/jeosong/data/" + projectId + "/workspace/";
+        final String hostPath = userHome + "/MountData/" + projectId + "/workspace/";
         final String containerPath = "/workspace";
 
         Bind bind = new Bind(hostPath, new Volume(containerPath));
