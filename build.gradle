@@ -40,6 +40,17 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // <-- Required for IDE -->
+	// <-- Required for Spring Security -->
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// <-- End for Spring Security -->
+
+	// <-- Required for JWT -->
+
+	// <-- End for JWT -->
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	// <-- Required for IDE -->
 
     // Docker
     implementation 'com.github.docker-java:docker-java:3.3.3'
@@ -57,6 +68,8 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 }
 
 tasks.named('test') {

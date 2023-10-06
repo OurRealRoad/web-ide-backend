@@ -10,6 +10,8 @@ argfile*
 activemq-data/
 classes/
 
+src/main/resources/application-rds.properties
+
 # Log files
 jxl.log
 jmx.log
