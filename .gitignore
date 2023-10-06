@@ -10,6 +10,9 @@ argfile*
 activemq-data/
 classes/
 
+src/main/resources/application-rds.properties
+src/main/resources/key/id_rsa
+
 # Log files
 jxl.log
 jmx.log

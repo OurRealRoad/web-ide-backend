@@ -27,7 +27,18 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
-    // <-- Required for IDE -->
+	// <-- Required for Spring Security -->
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// <-- End for Spring Security -->
+
+	// <-- Required for JWT -->
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	// <-- End for JWT -->
+
+
+	// <-- Required for IDE -->
 
     // Docker
     implementation 'com.github.docker-java:docker-java:3.3.3'
@@ -35,16 +46,17 @@ dependencies {
     implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.3.3'
     // 위 httpclient5에 아래의 의존성이 들어가있으나, classNotFound로 인한 추가
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
-
     // ssh
     implementation 'com.github.mwiede:jsch:0.2.11'
 
     // <-- End -->
 
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	compileOnly 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
