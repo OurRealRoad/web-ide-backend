@@ -22,6 +22,28 @@ repositories {
 }
 
 dependencies {
+    // <-- Required for Redis -->
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // <-- End for Redis -->
+
+    // <-- Required for sockjs -->
+    implementation 'org.webjars:sockjs-client:1.5.1'
+    // <-- End for sockjs -->
+
+    // <-- Required for Stomp -->
+    implementation 'org.webjars:stomp-websocket:2.3.4'
+    // <-- End for Stomp -->
+
+    // <-- Required for gson -->
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // <-- End for gson -->
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
