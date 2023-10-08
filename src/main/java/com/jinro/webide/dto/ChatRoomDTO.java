@@ -13,7 +13,8 @@ import java.util.List;
 @Getter
 @ToString
 @NoArgsConstructor
-public class ChatRoom implements Serializable {
+public class ChatRoomDTO implements Serializable {
+    private String projectId; //프로젝트 고유키
     private String roomId; // 채팅방 아이디
     private String roomName; // 채팅방 이름
     private long userCount; // 채팅방 인원수
@@ -21,7 +22,8 @@ public class ChatRoom implements Serializable {
     private List<ChatDTO> chatDTOList; //채팅 리스트
 
     @Builder
-    public ChatRoom(String roomId, String roomName, long userCount, HashMap<String, String> userlist, List<ChatDTO> chatDTOList) {
+    public ChatRoomDTO(String projectId, String roomId, String roomName, long userCount, HashMap<String, String> userlist, List<ChatDTO> chatDTOList) {
+        this.projectId = projectId;
         this.roomId = roomId;
         this.roomName = roomName;
         this.userCount = userCount;

@@ -1,7 +1,8 @@
 package com.jinro.webide.repository;
 
 import com.jinro.webide.dto.ChatDTO;
-import com.jinro.webide.dto.ChatRoom;
+import com.jinro.webide.dto.ChatRoomDTO;
+import com.jinro.webide.dto.RoomRequestDTO;
 import com.jinro.webide.util.RoomUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,45 +23,51 @@ public class ChatRepository {
     private final RedisTemplate<String, Object> redisTemplate;
 
     // 채팅방 메세지 조회
-    public List<ChatDTO> findRoomChatting(String roomId){
+    public List<ChatDTO> findRoomChatting(RoomRequestDTO rrd){
         //1. 채팅방 가져오기
-        ChatRoom chatRoom = findRoomById(roomId);
+        ChatRoomDTO chatRoomDTO = findRoomById(rrd);
 
         //2. 채팅내역 반환
-        if(chatRoom != null) {
-            log.info("채팅방 정보 : {}", chatRoom);
-            return chatRoom.getChatDTOList();
+        if(chatRoomDTO != null) {
+            log.info("채팅방 정보 : {}", chatRoomDTO);
+            return chatRoomDTO.getChatDTOList();
         }
-        log.info("채팅방이 없습니다. : " + roomId);
+        log.info("채팅방이 없습니다. : " + rrd);
         return null;
     }
 
-    // roomID 기준으로 채팅방 찾기
-    public ChatRoom findRoomById(String roomId){
-        HashOperations<String, String, ChatRoom> hashOperations = redisTemplate.opsForHash();
-        return hashOperations.get(CHAT_ROOM_KEY + roomId, roomId);
+    // chat:projectId:roomId 기준으로 채팅방 찾기
+    public ChatRoomDTO findRoomById(RoomRequestDTO rrd){
+        String key = CHAT_ROOM_KEY + rrd.getProjectId() + ":" + rrd.getRoomId();
+        HashOperations<String, String, ChatRoomDTO> hashOperations = redisTemplate.opsForHash();
+        return hashOperations.get(key, rrd.getRoomId());
     }
 
     // roomName 로 채팅방 만들기
-    public ChatRoom createChatRoom(String roomName){
+    public ChatRoomDTO createChatRoom(RoomRequestDTO rrd){
         //1. roomId 생성
         String roomId = RoomUtil.randomRoomId();
         //2. Redis에 채팅방 정보를 저장하는 코드 추가
-        ChatRoom chatRoom = ChatRoom.builder()
-                .roomName(roomName)
+        ChatRoomDTO chatRoomDTO = ChatRoomDTO.builder()
+                .projectId(rrd.getProjectId())
+                .roomName(rrd.getRoomName())
                 .roomId(roomId)
                 .build();
 
-        redisTemplate.opsForHash().put(CHAT_ROOM_KEY + roomId, roomId, chatRoom);
+        String key = CHAT_ROOM_KEY + rrd.getProjectId() + ":" + roomId;
+        redisTemplate.opsForHash().put(key, roomId, chatRoomDTO);
 
-        return chatRoom;
+        return chatRoomDTO;
     }
 
     // 채팅방 유저 리스트에 유저 추가
-    public String addUser(String roomId, String userName){
-        ChatRoom room = findRoomById(roomId);
+    public String addUser(RoomRequestDTO rrd, String userName){
+        ChatRoomDTO room = findRoomById(rrd);
         String userUUID = UUID.randomUUID().toString();
 
+        if(room == null) {
+            return null;
+        }
         //userList 에 추가
         if(room.getUserlist() == null) {
             room.setUserlist(new HashMap<>());
@@ -69,39 +76,39 @@ public class ChatRepository {
         room.setUserCount(room.getUserCount()+1); //채팅방 유저 +1
 
         // Redis에 채팅방 정보를 업데이트
-        redisTemplate.opsForHash().put(CHAT_ROOM_KEY + roomId, roomId, room);
+        String key = CHAT_ROOM_KEY + rrd.getProjectId() + ":" + rrd.getRoomId();
+        redisTemplate.opsForHash().put(key, rrd.getRoomId(), room);
 
         return userUUID;
     }
 
     // 채팅방 유저 리스트 삭제
-    public void delUser(String roomId, String userUUID){
-        ChatRoom room = findRoomById(roomId);
+    public void delUser(RoomRequestDTO rrd, String userUUID){
+        ChatRoomDTO room = findRoomById(rrd);
         room.getUserlist().remove(userUUID);
         room.setUserCount(room.getUserCount()-1); //채팅방 인원 -1
 
         // Redis에 채팅방 정보를 업데이트
-        redisTemplate.opsForHash().put(CHAT_ROOM_KEY + roomId, roomId, room);
+        String key = CHAT_ROOM_KEY + rrd.getProjectId() + ":" + rrd.getRoomId();
+        redisTemplate.opsForHash().put(key, rrd.getRoomId(), room);
     }
 
     // 채팅방 userName 조회
-    public String getUserName(String roomId, String userUUID){
-        ChatRoom room = findRoomById(roomId);
+    public String getUserName(RoomRequestDTO rrd, String userUUID){
+        ChatRoomDTO room = findRoomById(rrd);
         return room.getUserlist().get(userUUID);
     }
 
     // 채팅방 전체 user 조회
-    public ArrayList<String> getUserList(String roomId){
+    public ArrayList<String> getUserList(RoomRequestDTO rrd){
         ArrayList<String> list = new ArrayList<>();
 
-        ChatRoom room = findRoomById(roomId);
-        log.info(room.toString());
+        ChatRoomDTO room = findRoomById(rrd);
         //유저가 없을 경우
         if (room.getUserCount() == 0L) {
             log.info("해당 채팅방은 유저가 없습니다.");
             return null;
         }
-        log.info(String.valueOf(room.getUserlist().size()));
 
         // hashmap 을 for 문을 돌린 후
         // value 값만 뽑아내서 list 에 저장 후 reutrn
@@ -110,8 +117,8 @@ public class ChatRepository {
     }
 
     //메세지 저장
-    public void saveMsg(ChatDTO chatDTO) {
-        ChatRoom room = findRoomById(chatDTO.getRoomId());
+    public void saveMsg(RoomRequestDTO rrd, ChatDTO chatDTO) {
+        ChatRoomDTO room = findRoomById(rrd);
 
         //처음 채팅일 경우
         if(room.getChatDTOList() == null) {
@@ -120,6 +127,7 @@ public class ChatRepository {
         room.getChatDTOList().add(chatDTO);
 
         // Redis에 채팅방 정보를 업데이트
-        redisTemplate.opsForHash().put(CHAT_ROOM_KEY + chatDTO.getRoomId(), chatDTO.getRoomId(), room);
+        String key = CHAT_ROOM_KEY + rrd.getProjectId() + ":" + rrd.getRoomId();
+        redisTemplate.opsForHash().put(key, rrd.getRoomId(), room);
     }
 }

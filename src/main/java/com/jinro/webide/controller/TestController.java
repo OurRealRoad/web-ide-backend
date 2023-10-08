@@ -1,6 +1,7 @@
 package com.jinro.webide.controller;
 
 import com.jinro.webide.dto.ChatDTO;
+import com.jinro.webide.dto.RoomRequestDTO;
 import com.jinro.webide.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ public class TestController {
     /**
      * index
      */
-    @GetMapping("api/v1/testChating")
+    @GetMapping("/testChating")
     public ModelAndView home(ModelAndView mav) {
         mav.setViewName("index");
         return mav;
@@ -32,22 +33,29 @@ public class TestController {
 
     // 채팅방 입장
     @MessageMapping("/chat/enterUserTest")
-    public void enterUser(@Payload ChatDTO chat, SimpMessageHeaderAccessor headerAccessor) {
-        log.info(chat.toString());
+    public void enterUser(@Payload ChatDTO chat, SimpMessageHeaderAccessor headerAccessor) throws Exception {
+        log.info("CHAT {}", chat);
 
         // 채팅방에 유저 추가 및 UserUUID 반환
-        String userUUID = repository.addUser(chat.getRoomId(), chat.getSender());
+        RoomRequestDTO roomRequestDTO = RoomRequestDTO.builder()
+                .projectId(chat.getProjectId())
+                .roomId(chat.getRoomId())
+                .build();
+
+        String userUUID = repository.addUser(roomRequestDTO, chat.getSender());
+        if(userUUID == null) {
+            throw new Exception("해당 채팅방은 없는 채팅방입니다. 다시 입력해 주세요.");
+        }
 
         // 반환 결과를 socket session 에 userUUID 로 저장
         headerAccessor.getSessionAttributes().put("userUUID", userUUID);
         headerAccessor.getSessionAttributes().put("roomId", chat.getRoomId());
+        headerAccessor.getSessionAttributes().put("projectId", chat.getProjectId());
 
         chat.setMessage(chat.getSender() + " 님 입장!!");
 
-        //redis 저장
-        repository.saveMsg(chat);
-
-        //구독한 채널에 반환
+        //메세지 저장 추가
+        repository.saveMsg(roomRequestDTO ,chat);
         template.convertAndSend("/sub/chat/room/" + chat.getRoomId(), chat);
     }
 
@@ -58,10 +66,14 @@ public class TestController {
         String msg = chat.getSender() + "님 : " + chat.getMessage();
         chat.setMessage(msg);
 
-        //redis 저장
-        repository.saveMsg(chat);
+        //메세지 저장 추가
+        // 채팅방에 유저 추가 및 UserUUID 반환
+        RoomRequestDTO roomRequestDTO = RoomRequestDTO.builder()
+                .projectId(chat.getProjectId())
+                .roomId(chat.getRoomId())
+                .build();
 
-        //구독한 채널에 반환
+        repository.saveMsg(roomRequestDTO, chat);
         template.convertAndSend("/sub/chat/room/" + chat.getRoomId(), chat);
     }
 }

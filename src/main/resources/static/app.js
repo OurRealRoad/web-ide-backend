@@ -50,6 +50,7 @@ function sendName() {
         destination: "/pub/chat/enterUserTest",
         body: JSON.stringify({
             'type': 'ENTER',
+            'projectId': $("#projectId").val(),
             'roomId': $("#roomId").val(),
             'sender': $("#name").val(),
             'time': "오후 3:00"
@@ -62,6 +63,7 @@ function sendMsg() {
         destination: "/pub/chat/sendMessageTest",
         body: JSON.stringify({
             'type': 'TALK',
+            'projectId': $("#projectId").val(),
             'roomId': $("#roomId").val(),
             'sender': $("#name").val(),
             'message': $("#message").val(),
