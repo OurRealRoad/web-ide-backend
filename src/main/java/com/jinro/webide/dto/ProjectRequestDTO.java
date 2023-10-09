@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 public class ProjectRequestDTO {
 
-    @NotBlank(message = "member id가 null 일 순 없습니다.")
     private String memberId;
 
     @NotBlank
