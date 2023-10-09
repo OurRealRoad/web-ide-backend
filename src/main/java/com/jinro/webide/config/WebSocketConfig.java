@@ -39,8 +39,9 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
     // 웹소켓 연결을 위한STOMP 엔드포인트 등록
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp");
-        //.withSockJS(); // SocketJS를 연결한다는 설정
+        registry.addEndpoint("/ws-stomp")
+                .setAllowedOrigins("http://localhost:3000")
+                .withSockJS(); // SocketJS를 연결한다는 설정
     }
 }
 
