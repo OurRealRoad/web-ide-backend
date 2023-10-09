@@ -5,8 +5,10 @@ import com.jinro.webide.domain.FileNode;
 import com.jinro.webide.domain.Project;
 import com.jinro.webide.dto.FileSystemDTO;
 import com.jinro.webide.dto.ProjectRequestDTO;
+import com.jinro.webide.login.service.JwtService;
 import com.jinro.webide.service.JSchService;
 import com.jinro.webide.service.ProjectService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,9 +26,12 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final JSchService jSchService;
+    private final JwtService jwtService;
 
-    @GetMapping("/{memberId}")
-    public ResponseEntity<?> getProjectLIst(@PathVariable String memberId) {
+    @GetMapping
+    public ResponseEntity<?> getProjectLIst(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization").substring(7);
+        String memberId = jwtService.extratUserId(authorization);
         return new ResponseEntity<>(projectService.getAllProject(memberId), HttpStatus.OK);
     }
 
@@ -49,8 +54,11 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createProject(@RequestBody ProjectRequestDTO requestDTO) {
+    public ResponseEntity<?> createProject(@RequestBody ProjectRequestDTO requestDTO, HttpServletRequest request) {
         try {
+            String authorization = request.getHeader("Authorization").substring(7);
+            String memberId = jwtService.extratUserId(authorization);
+            requestDTO.setMemberId(memberId);
             Project project = projectService.createProject(requestDTO);
 
             return new ResponseEntity<>(project, HttpStatus.CREATED);
