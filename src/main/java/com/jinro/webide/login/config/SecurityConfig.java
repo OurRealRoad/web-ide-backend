@@ -54,7 +54,7 @@ public class SecurityConfig {
                 }));
 
         http.csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers(
-            new AntPathRequestMatcher("/api/v1/**")
+                        new AntPathRequestMatcher("/api/v1/**")
                 )
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
@@ -63,7 +63,10 @@ public class SecurityConfig {
 //        http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(request ->
                 request
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        //chat Test페이지를 열기위한 인증 무시 추가 ("/app.js", "/testChating")
+                        //채팅에 필수적으로 필요한 (ws-stomp, pub, sub) 경로 open 필요
+                        .requestMatchers("/api/v1/auth/**", "/app.js", "/testChating", "/ws-stomp/**", "/pub", "/sub", "http://localhost:3000/")
+                        .permitAll()
                         .anyRequest().authenticated()
         );
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
