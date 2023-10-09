@@ -11,7 +11,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLOutput;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -61,6 +63,21 @@ public class AuthenticationService {
                 .isAccepted(true)
                 .token(jwtToken)
                 .build();
+    }
+
+    public BasicResponse emailCheck(String email){
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        System.out.println("1"+optionalMember);
+        if(!optionalMember.isEmpty()){
+            return BasicResponse.builder()
+                    .result(false)
+                    .message("존재하는 계정입니다.").build();
+        } else {
+            return BasicResponse.builder()
+                    .result(true)
+                    .message("존재하지 않는 계정입니다.")
+                    .build();
+        }
     }
 
     public AuthenticationResponse passwordUpdate(UpdatePasswordRequest request){
