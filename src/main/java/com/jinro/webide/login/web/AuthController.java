@@ -25,6 +25,11 @@ public class AuthController {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
+    @GetMapping("/email-check")
+    public ResponseEntity<BasicResponse> emailCheck(@RequestParam String email){
+        return ResponseEntity.ok(authenticationService.emailCheck(email));
+    }
+
     @GetMapping("/csrf")
     public ResponseEntity<String> getCsrfToken(HttpServletRequest request, CsrfToken token){
         if(request.getHeader("X-XSRF-TOKEN") == null) {
