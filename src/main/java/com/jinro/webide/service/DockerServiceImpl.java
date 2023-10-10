@@ -32,7 +32,7 @@ public class DockerServiceImpl implements DockerService {
         try {
             createContainer(projectId);
             startContainer(projectId);
-        }catch(Error e){
+        }catch(Exception e){
             return getContainerPort(projectId);
         }
 
