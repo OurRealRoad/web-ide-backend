@@ -23,7 +23,7 @@ public final class InfraConst {
     public static final String RSA_PATH = System.getenv("RSA_Path");
 
     // ssh account
-    public static final String SSH_ACCOUNT = System.getenv("SSH_account");
+    public static final String SSH_ACCOUNT = "root";
 
     private InfraConst() {
     }
