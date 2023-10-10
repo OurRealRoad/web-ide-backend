@@ -50,7 +50,7 @@ public class DockerServiceImpl implements DockerService {
     @Override
     public void createContainer(String projectId) {
         if (projectMap.containsKey(projectId))
-            throw new IllegalArgumentException("Container is already allocated to the project.");
+            return;
         CreateContainerResponse container = dockerClient.createContainerCmd(InfraConst.IMAGE_ID)
                 .withHostConfig(getDockerConfig(projectId))
                 .exec();
