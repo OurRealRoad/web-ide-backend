@@ -54,7 +54,6 @@ public class JSchServiceImpl implements JSchService {
     @Override
     public void socketExecute(WebSocketSession webSocketSession, String command) throws JSchException, IOException {
         String projectId = (String) webSocketSession.getAttributes().get("projectId");
-        log.info("in socketExecute projectId = {}", projectId);
         ChannelShell shell = projectSession.get(projectId).getChannelShell();
         InputStream in = shell.getInputStream();
         OutputStream os = shell.getOutputStream();
@@ -64,7 +63,7 @@ public class JSchServiceImpl implements JSchService {
         } else if (command.equals("SIGTSTP")) {
             os.write(26);
         } else {
-            os.write((command + "\n").getBytes());
+            os.write(command.getBytes());
         }
         os.flush();
 
