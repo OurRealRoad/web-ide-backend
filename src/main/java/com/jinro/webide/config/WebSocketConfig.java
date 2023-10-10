@@ -23,7 +23,8 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(webSocketHandler, "/api/v1/terminal")
-                .setAllowedOrigins("*");
+                .setAllowedOrigins("http://localhost:3000")
+                .withSockJS();
     }
 
     // Stomp 관련 설정
